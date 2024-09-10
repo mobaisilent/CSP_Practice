@@ -1,12 +1,15 @@
-#include <bits/stdc++.h>
+// #include <iostream>
+// #include <map>
+// #include <string>
+#include<bits/stdc++.h>
 
 using namespace std;
 
 // 将8行矩阵作为一个字符串处理即可
 int main() {
-  ios::sync_with_stdio(false);
-  cin.tie(0);
-  cout.tie(0);
+  // ios::sync_with_stdio(false);
+  // cin.tie(0);
+  // cout.tie(0);
   int n;
   cin >> n;
   getchar();
@@ -24,16 +27,17 @@ int main() {
     }
     a[cnt++] = s;
   }
-  for (int i = tmp-1; i >= 0; i--) {
-    mp[i] = 1;
-    for (int j = i - 1; j >= 0; j--) {
+  for (int i = 0; i < tmp; i++) {
+    mp[i] = 0;
+    for (int j = 0; j <= i; j++) {
       if (a[i] == a[j]) {
         mp[i]++;
       }
     }
   }
-  for (auto i : mp) {
+  for (auto &i : mp) {
     cout << i.second << endl;
   }
   return 0;
 }
+// 暴力枚举检索，怎么会出错呢？从原理上来说不应该啊？

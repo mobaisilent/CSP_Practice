@@ -711,6 +711,498 @@ int main() {
 
 ## T1
 
+| 试题编号： | 202305-1     |
+| ---------- | ------------ |
+| 试题名称： | 重复局面     |
+| 时间限制： | 1.0s         |
+| 内存限制： | 512.0MB      |
+| 问题分类： | 枚举，字符串 |
 
+### 题目背景
+
+国际象棋在对局时，同一局面连续或间断出现3次或3次以上，可由任意一方提出和棋。
+
+### 问题描述
+
+国际象棋每一个局面可以用大小为 8×8 的字符数组来表示，其中每一位对应棋盘上的一个格子。六种棋子王、后、车、象、马、兵分别用字母 `k`、`q`、`r`、`b`、`n`、`p` 表示，其中大写字母对应白方、小写字母对应黑方。棋盘上无棋子处用字符 `*` 表示。两个字符数组的每一位均相同则说明对应同一局面。
+
+现已按上述方式整理好了每步棋后的局面，试统计每个局面分别是第几次出现。
+
+![game.png](images/RequireFile-20240910170137486.png)
+
+### 输入格式
+
+从标准输入读入数据。
+
+输入的第一行包含一个正整数 n，表示这盘棋总共有 n 步。
+
+接下来 8×n 行，依次输入第 1 到第 n 步棋后的局面。具体来说每行包含一个长度为 8 的字符串，每 8 行字符串共 64 个字符对应一个局面。
+
+### 输出格式
+
+输出到标准输出中。
+
+输出共 n 行，每行一个整数，表示该局面是第几次出现。
+
+### 样例输入
+
+```data
+8
+********
+******pk
+*****r*p
+p*pQ****
+********
+**b*B*PP
+****qP**
+**R***K*
+********
+******pk
+*****r*p
+p*pQ****
+*b******
+****B*PP
+****qP**
+**R***K*
+********
+******pk
+*****r*p
+p*p*****
+*b**Q***
+****B*PP
+****qP**
+**R***K*
+******k*
+******p*
+*****r*p
+p*p*****
+*b**Q***
+****B*PP
+****qP**
+**R***K*
+******k*
+******p*
+*****r*p
+p*pQ****
+*b******
+****B*PP
+****qP**
+**R***K*
+********
+******pk
+*****r*p
+p*pQ****
+*b******
+****B*PP
+****qP**
+**R***K*
+********
+******pk
+*****r*p
+p*p*****
+*b**Q***
+****B*PP
+****qP**
+**R***K*
+********
+******pk
+******rp
+p*p*****
+*b**Q***
+****B*PP
+****qP**
+**R***K*
+```
+
+### 样例输出
+
+```data
+1
+1
+1
+1
+1
+2
+2
+1
+```
+
+### 样例说明
+
+第 6、7 步后的局面分别与第 2、3 步后的局面相同。第 8 步后的局面与上图相对应。
+
+### 子任务
+
+输入数据满足 n≤100。
+
+### 提示
+
+判断重复局面仅涉及字符串比较，无需考虑国际象棋实际行棋规则。
+
+### 代码
+
+```c++
+#include <iostream>
+#include <map>
+#include <string>
+// #include<bits/stdc++.h>
+
+using namespace std;
+
+// 将8行矩阵作为一个字符串处理即可
+int main() {
+  // ios::sync_with_stdio(false);
+  // cin.tie(0);
+  // cout.tie(0);
+  int n;
+  cin >> n;
+  getchar();
+  // 向这里数字转字符务必使用getchar()，否则会出现错误
+  string a[n];
+  map<int, int> mp;
+  int cnt = 0;
+  int tmp = n;
+  while (n--) {
+    string s;
+    for (int i = 0; i < 8; i++) {
+      string t;
+      getline(cin, t);
+      s += t;
+    }
+    a[cnt++] = s;
+  }
+  for (int i = 0; i < tmp; i++) {
+    mp[i] = 0;
+    for (int j = 0; j <= i; j++) {
+      if (a[i] == a[j]) {
+        mp[i]++;
+      }
+    }
+  }
+  for (auto &i : mp) {
+    cout << i.second << endl;
+  }
+  return 0;
+}
+// 暴力枚举检索，怎么会出错呢？从原理上来说不应该啊？
+```
+
+> 代码没有问题，理所当然是满分，稍微注意下判题系统，似乎是头文件的问题，待进一步慢慢调试发现，注意看上面的注释掉的代码
+>
+> 测试发现万能头文件没问题，问题出在 解除绑定 cin和cout上，看来没事不用用那个，除非题目分数给TLE了
+
+## T2
+
+|            |            |
+| ---------- | ---------- |
+| 试题编号： | 202305-2   |
+| 试题名称： | 矩阵运算   |
+| 时间限制： | 5.0s       |
+| 内存限制： | 512.0MB    |
+| 题目类型： | 模拟，循环 |
+
+### 题目背景
+
+Softmax(Q×KTd)×V 是 Transformer 中注意力模块的核心算式，其中 Q、K 和 V 均是 n 行 d 列的矩阵，KT 表示矩阵 K 的转置，× 表示矩阵乘法。
+
+### 问题描述
+
+为了方便计算，顿顿同学将 Softmax 简化为了点乘一个大小为 n 的一维向量 W：
+`(W⋅(Q×K^T))×V`
+点乘即对应位相乘，记 W(i) 为向量 W 的第 i 个元素，即将 (Q×KT) 第 i 行中的每个元素都与 W(i) 相乘。
+
+现给出矩阵 Q、K 和 V 和向量 W，试计算顿顿按简化的算式计算的结果。
+
+### 输入格式
+
+从标准输入读入数据。
+
+输入的第一行包含空格分隔的两个正整数 n 和 d，表示矩阵的大小。
+
+接下来依次输入矩阵 Q、K 和 V。每个矩阵输入 n 行，每行包含空格分隔的 d 个整数，其中第 i 行的第 j 个数对应矩阵的第 i 行、第 j 列。
+
+最后一行输入 n 个整数，表示向量 W。
+
+### 输出格式
+
+输出到标准输出中。
+
+输出共 n 行，每行包含空格分隔的 d 个整数，表示计算的结果。
+
+### 样例输入
+
+```data
+3 2
+1 2
+3 4
+5 6
+10 10
+-20 -20
+30 30
+6 5
+4 3
+2 1
+4 0 -5
+```
+
+### 样例输出
+
+```data
+480 240
+0 0
+-2200 -1100
+```
+
+### 子任务
+
+70 的测试数据满足：n≤100 且 d≤10；输入矩阵、向量中的元素均为整数，且绝对值均不超过 30。
+
+全部的测试数据满足：n≤104 且 d≤20；输入矩阵、向量中的元素均为整数，且绝对值均不超过 1000。
+
+### 提示
+
+请谨慎评估矩阵乘法运算后的数值范围，并使用适当数据类型存储矩阵中的整数。
+
+> 模拟运算即可，本质上没有难度
+
+### 代码
+
+> 70分超时代码如下
+
+```c++
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+void getMatrix(vector<vector<long long int>> &matrix, int n, int d) {
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= d; j++) {
+      cin >> matrix[i][j];
+    }
+  }
+}
+
+void getTMatrix(vector<vector<long long int>> &from,
+                vector<vector<long long int>> &to, int n, int d) {
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= d; j++) {
+      to[j][i] = from[i][j];
+    }
+  }
+}
+
+int main() {
+  long long int n, d;
+  cin >> n >> d;
+  vector<vector<long long int>> Q(n + 1, vector<long long int>(d + 1));
+  vector<vector<long long int>> K(n + 1, vector<long long int>(d + 1));
+  vector<vector<long long int>> V(n + 1, vector<long long int>(d + 1));
+  getMatrix(Q, n, d);
+  getMatrix(K, n, d);
+  getMatrix(V, n, d);
+  // 获取三个初始矩阵，这里应该不会超时吧
+
+  vector<vector<long long int>> KT(d + 1, vector<long long int>(n + 1));
+  getTMatrix(K, KT, n, d);
+  // 获得转置矩阵
+
+  vector<int> M(n + 1, 0);
+  for (int i = 1; i <= n; i++) {
+    cin >> M[i];
+  }
+
+  vector<vector<long long int>> QKT(n + 1, vector<long long int>(n + 1, 0));
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= n; j++) {
+      for (int k = 1; k <= d; k++) {
+        QKT[i][j] += Q[i][k] * KT[k][j];
+      }
+    }
+  }
+  // n*d的矩阵和d*n的矩阵乘积，结果是n*n的矩阵
+  // 举证乘积要求：：n d d n 中间两位相同即可
+
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= n; j++) {
+      QKT[i][j] = QKT[i][j] * M[i];
+    }
+  }
+  // 点乘运算
+
+  // 计算 QKT 和 V 的乘积
+  vector<vector<long long int>> QKTV(n + 1, vector<long long int>(d + 1, 0));
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= d; j++) {
+      for (int k = 1; k <= n; k++) {
+        QKTV[i][j] += QKT[i][k] * V[k][j];
+      }
+    }
+  }
+  // n*n的矩阵和n*d的矩阵，结果是n*d的矩阵
+
+  // 输出 QKTV 矩阵
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= d; j++) {
+      cout << QKTV[i][j] << " ";
+    }
+    cout << endl;
+  }
+
+  return 0;
+}
+```
+
+> 矩阵运算：
+>
+> 1. 打草稿
+>
+> 2. 核心明确结果矩阵的行和列
+> 3. i和j控制结果矩阵的填值，k分别控制列和行的改变 
+> 4. 几乎所有矩阵的乘积都满足第三点
+
+### 优化代码
+
+> 优化失败：依旧是70分超时
+
+```c++
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+void getMatrix(vector<vector<long long int>> &matrix, int n, int d) {
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= d; j++) {
+      cin >> matrix[i][j];
+    }
+  }
+}
+
+void getTMatrix(vector<vector<long long int>> &from,
+                vector<vector<long long int>> &to, int n, int d) {
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= d; j++) {
+      to[j][i] = from[i][j];
+    }
+  }
+}
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(0);
+  cout.tie(0);
+  long long int n, d;
+  cin >> n >> d;
+  vector<vector<long long int>> Q(n + 1, vector<long long int>(d + 1));
+  vector<vector<long long int>> K(n + 1, vector<long long int>(d + 1));
+  vector<vector<long long int>> V(n + 1, vector<long long int>(d + 1));
+  getMatrix(Q, n, d);
+  getMatrix(K, n, d);
+  getMatrix(V, n, d);
+
+  vector<vector<long long int>> KT(d + 1, vector<long long int>(n + 1));
+  getTMatrix(K, KT, n, d);
+
+  vector<int> M(n + 1, 0);
+  for (int i = 1; i <= n; i++) {
+    cin >> M[i];
+  }
+
+  vector<vector<long long int>> QKT(n + 1, vector<long long int>(n + 1, 0));
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= n; j++) {
+      for (int k = 1; k <= d; k++) {
+        QKT[i][j] += Q[i][k] * KT[k][j];
+      }
+    }
+  }
+
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= n; j++) {
+      QKT[i][j] = QKT[i][j] * M[i];
+    }
+  }
+
+  // 计算 QKT 和 V 的乘积
+  vector<vector<long long int>> QKTV(n + 1, vector<long long int>(d + 1, 0));
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= d; j++) {
+      for (int k = 1; k <= n; k++) {
+        QKTV[i][j] += QKT[i][k] * V[k][j];
+      }
+      cout << QKTV[i][j] << " ";
+    }
+    cout << endl;
+  }
+
+  return 0;
+}
+```
+
+### 优化代码
+
+> 优化失败：依旧超时，三个代码均为70分，没啥太大差异
+
+```c++
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+void getMatrix(vector<vector<long long int>> &matrix, int n, int d) {
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= d; j++) {
+      cin >> matrix[i][j];
+    }
+  }
+}
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(0);
+  cout.tie(0);
+  
+  long long int n, d;
+  cin >> n >> d;
+  
+  vector<vector<long long int>> Q(n + 1, vector<long long int>(d + 1));
+  vector<vector<long long int>> K(n + 1, vector<long long int>(d + 1));
+  vector<vector<long long int>> V(n + 1, vector<long long int>(d + 1));
+  
+  getMatrix(Q, n, d);
+  getMatrix(K, n, d);
+  getMatrix(V, n, d);
+
+  vector<int> M(n + 1, 0);
+  for (int i = 1; i <= n; i++) {
+    cin >> M[i];
+  }
+
+  // 计算 QKT 和 V 的乘积
+  vector<vector<long long int>> QKTV(n + 1, vector<long long int>(d + 1, 0));
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= d; j++) {
+      long long int sum = 0;
+      for (int k = 1; k <= n; k++) {
+        long long int qkt = 0;
+        for (int l = 1; l <= d; l++) {
+          qkt += Q[i][l] * K[k][l];
+        }
+        qkt *= M[i];
+        sum += qkt * V[k][j];
+      }
+      QKTV[i][j] = sum;
+      cout << QKTV[i][j] << " ";
+    }
+    cout << endl;
+  }
+  return 0;
+}
+```
+
+# 202303
+
+## T1
 
 ## T2
