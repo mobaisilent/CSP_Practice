@@ -1253,6 +1253,8 @@ int main() {
 
 ### 样例解释
 
+> 我能不能便利遍历每个矩阵的四个点，然后得到在矩形内的点？但是还有矩形外的点需要考虑，比如说跨过了整个矩形的情况
+
 如图所示，选定区域内田地（绿色区域）面积为 44。
 
 ![demo.png](images/RequireFile-20240911104838644.png)
@@ -1271,18 +1273,90 @@ int main() {
 
 ### 代码
 
+```c++
+#include <bits/stdc++.h>
 
+using namespace std;
+
+int getArea(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4) {
+  int a1 = min(max(x1, x2), max(x3, x4));
+  int a2 = min(max(y1, y2), max(y3, y4));
+  int b1 = max(min(x1, x2), min(x3, x4));
+  int b2 = max(min(y1, y2), min(y3, y4));
+  if (a1 > b1 && a2 > b2) {
+    return (a1 - b1) * (a2 - b2);
+  }
+  return 0;
+}
+
+int main() {
+  int n, x1, y1;
+  cin >> n >> x1 >> y1;
+  int ret = 0;
+  while (n--) {
+    int x3, y3, x4, y4;
+    cin >> x3 >> y3 >> x4 >> y4;
+    ret += getArea(0, 0, x1, y1, x3, y3, x4, y4);
+  }
+  cout << ret << endl;
+  return 0;
+}
+```
+
+> 矩形的交集面积可以收录了，写起来发现没那么简单
+>
+> 我不好评价，google搜索的，蓝桥杯基础练习题，但凡懂这个算法就没丁点难度，但凡不懂的话考场多半写不出来。
+>
+> 算法我曾经见过，但是没有收录，“我爱笔记”！！
+
+### 算法步骤
+
+1. **计算相交区域的右上角坐标**：
+
+   int a1 = min(max(x1, x2), max(x3, x4));
+
+   int a2 = min(max(y1, y2), max(y3, y4));
+
+   - [`a1`](vscode-file://vscode-app/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) 是两个矩形右边界的最小值。
+   - [`a2`](vscode-file://vscode-app/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) 是两个矩形上边界的最小值。
+
+2. **计算相交区域的左下角坐标**：
+
+   int b1 = max(min(x1, x2), min(x3, x4));
+
+   int b2 = max(min(y1, y2), min(y3, y4));
+
+   - [`b1`](vscode-file://vscode-app/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) 是两个矩形左边界的最大值。
+   - [`b2`](vscode-file://vscode-app/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) 是两个矩形下边界的最大值。
+
+3. **判断是否相交并计算面积**：
+
+   if (a1 > b1 && a2 > b2) {
+
+    return (a1 - b1) * (a2 - b2);
+
+   }
+
+   return 0;
+
+   - 如果 [`a1 > b1`](vscode-file://vscode-app/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) 且 [`a2 > b2`](vscode-file://vscode-app/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/code/electron-sandbox/workbench/workbench.html)，则两个矩形相交，返回相交区域的面积 `(a1 - b1) * (a2 - b2)`。
+   - 否则，返回 0，表示两个矩形不相交。
+   - 口诀：右上角两大取小，左下角两小取大
+
+   > 也就是说直接按照相交计算得到相交区域左下角和右上角的坐标
+   >
+   > 最小的最大 最大的最小 emm 直接看图看能不能看懂
 
 ## T2
 
-| 试题编号： | 202303-2 |
-| ---------- | -------- |
-| 试题名称： | 垦田计划 |
-| 时间限制： | 1.0s     |
-| 内存限制： | 512.0MB  |
-| 题目类型： |          |
+| 试题编号： | 202303-2         |
+| ---------- | ---------------- |
+| 试题名称： | 垦田计划         |
+| 时间限制： | 1.0s             |
+| 内存限制： | 512.0MB          |
+| 题目类型： | 贪心，规划，决策 |
 
-## 问题描述
+### 问题描述
 
 顿顿总共选中了 n 块区域准备开垦田地，由于各块区域大小不一，开垦所需时间也不尽相同。据估算，其中第 i 块（1≤i≤n）区域的开垦耗时为 ti 天。这 n 块区域可以同时开垦，所以总耗时 tTotal 取决于耗时最长的区域，即：t(Total)=max{t1,t2,⋯,tn}
 
@@ -1295,7 +1369,7 @@ int main() {
 
 现在顿顿手中共有 m 单位资源可供使用，试计算开垦 n 块区域最少需要多少天？
 
-## 输入格式
+### 输入格式
 
 从标准输入读入数据。
 
@@ -1305,13 +1379,13 @@ int main() {
 
 接下来 n 行，每行包含空格分隔的两个正整数 ti 和 ci，分别表示第 i 块区域开垦耗时和将耗时缩短 1 天所需资源数量。
 
-## 输出格式
+### 输出格式
 
 输出到标准输出。
 
 输出一个整数，表示开垦 n 块区域的最少耗时。
 
-## 样例输入1
+### 样例输入1
 
 ```data
 4 9 2
@@ -1321,13 +1395,13 @@ int main() {
 7 1
 ```
 
-## 样例输出1
+### 样例输出1
 
 ```data
 5
 ```
 
-## 样例解释
+### 样例解释
 
 如下表所示，投入 5 单位资源即可将总耗时缩短至 5 天。此时顿顿手中还剩余 4 单位资源，但无论如何安排，也无法使总耗时进一步缩短。
 
@@ -1338,7 +1412,7 @@ int main() {
 | 3    | 6           | 2                    | 2            | 5        |
 | 4    | 7           | 1                    | 2            | 5        |
 
-## 样例输入2
+### 样例输入2
 
 ```data
 4 30 2
@@ -1348,18 +1422,26 @@ int main() {
 7 1
 ```
 
-## 样例输出2
+### 样例输出2
 
 ```data
 2
 ```
 
-## 样例解释
+### 样例解释
 
 投入 20 单位资源，恰好可将所有区域开垦耗时均缩短为 k=2 天；受限于 k，剩余的 10 单位资源无法使耗时进一步缩短。
 
-## 子任务
+### 子任务
 
 70% 的测试数据满足：0<n,ti,ci≤100 且 0<m≤10^6；
 
 全部的测试数据满足：0<n,ti,ci≤105 且 0<m≤10^9。
+
+> 无比熟悉的题目，估计又是蓝桥杯基础练习题之一了
+
+### 代码
+
+```c++
+```
+
