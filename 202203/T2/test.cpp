@@ -18,6 +18,7 @@ int main(){
     for(int j=1;j<=n;j++){
       if(mv[j][1]<end) continue;
       if(mv[j][1]<=(end+(mv[j][2]-1))) ans++;
+      // end<mv[j][1]<=end+mv[j][2]-1
     }
     cout<<ans<<endl;
   }
