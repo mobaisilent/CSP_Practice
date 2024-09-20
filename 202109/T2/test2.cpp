@@ -3,20 +3,37 @@
 using namespace std;
 
 int main(){
-  int n,m,L;
-  cin>>n>>m>>L;
-  map<int,int>mp;
-  for(int i=0;i<L;i++){
-    mp[i]=0;
-  }
+  int n;cin>>n;
+  vector<int>mv(n+2,0);
+  set<int>ms; ms.insert(1);
+  int t=0;
   for(int i=1;i<=n;i++){
-    for(int j=1;j<=m;j++){
-      int t;cin>>t;
-      mp[t]++;
+    cin>>mv[i];
+    t+=mv[i];
+    ms.insert(mv[i]);
+  }
+  vector<int>check(n+2,0);
+  int ans=0;
+  for(auto it:ms){
+    check=mv;
+    if(it==0)continue;
+    for(int i=1;i<=n;i++){
+      if(check[i]<=it) check[i]=0;
+      else check[i]=1;
     }
+    int tmp=0;
+    for(int i=0;i<=n+1;i++){
+      if(check[i]>0){
+        tmp++;
+        while(check[i]>0){
+          i++;
+          if(i>=n+2) break;
+        }
+      }
+    }
+    ans=max(ans,tmp);
   }
-  for(auto it:mp){
-    cout<<it.second<<" ";
-  }
+  if(t==0) cout<<0;
+  else cout<<ans;
   return 0;
 }
