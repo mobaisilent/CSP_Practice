@@ -2833,6 +2833,48 @@ int main(){
 
 > 以最快的速度完成2021年的题目吧，然后将题目全部回溯一遍，了解题目内涵，领悟出题人的思想，争取考试尽量拿到200分及其以上
 
+优化代码如下：
+```c++
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+
+using namespace std;
+
+const int N = 200010;
+
+int s[N];
+
+int main()
+{
+    int n, m, k;
+    cin >> n >> m >> k;
+    // 差分
+    for (int i = 1; i <= n; i ++ )
+    {
+        int t, c;
+        cin >> t >> c;
+        // 差分和前缀和数组要从 1 开始，否则无意义
+        s[max(1, t - k - c + 1)] ++, s[max(1, t - k + 1)] --;
+    }
+    // 注意这里在计算前缀和的时候，for 循环时循环到 N 而不是 n
+    for (int i = 1; i <= N; i ++ ) s[i] += s[i - 1];
+
+    for (int i = 1; i <= m; i ++ )
+    {
+        int q;
+        cin >> q;
+        cout << s[q] << endl;
+    }
+
+    return 0;
+}
+```
+
+> 参考链接如下：https://bbs.huaweicloud.com/blogs/359288
+>
+> 讲的很好，但是还不是很理解差分的目的
+
 
 
 # 202112：170✅
@@ -2943,7 +2985,7 @@ sum(A)=f(0)×2+f(2)×3+f(5)×3+f(8)×2
 ### 代码
 
 ```c++
-	#include<bits/stdc++.h>
+#include<bits/stdc++.h>
 
 using namespace std;
 
@@ -3459,6 +3501,43 @@ int main(){
 ```
 
 > 想要优化总是非常困难呢
+
+下面是差分优化：
+
+```c++
+/* CCF202109-2 非零段划分 */
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int N = 500000;
+const int M = 10000;
+int a[N + 2], d[M + 1];
+
+int main()
+{
+    int n;
+    scanf("%d", &n);
+    for (int i = 1; i <= n; i++) scanf("%d", &a[i]);
+    a[0] = a[n + 1] = 0;
+
+    n = unique(a, a + n + 2) - a - 1;
+
+    memset(d, 0, sizeof d);
+    for (int i = 1; i < n; i++)
+        if (a[i - 1] < a[i] && a[i] > a[i + 1]) d[a[i]]++;
+        else if (a[i - 1] > a[i] && a[i] <a[i + 1]) d[a[i]]--;
+
+    int ans = 0, sum = 0;   // 差分前缀和即为答案
+    for (int i = M; i >= 1; i--)
+        sum += d[i], ans = max(ans, sum);
+
+    printf("%d\n", ans);
+
+    return 0;
+}
+```
 
 # 202104：200✅
 
